@@ -35,7 +35,7 @@ export default {
   }, 
   watch: {
     file () {
-      this.$store.dispatch('csv2Array', this.file)
+      this.$store.dispatch('tsv2Array', this.file)
     }
   },
   computed: {

@@ -112,6 +112,33 @@ const store = createStore({
         dispatch('csv2Json', arrData)
       }
     },
+    tsv2Array({ commit }, csv) {
+      if (csv) {
+        const lines = csv.trim().split('\n')
+        const header = lines[0].split('\t').map(key => key.replace(' ', '').trim())
+        const output = lines.slice(1).map((line) => {
+          const fields = line.split('\t').map(key => key.trim())
+          return Object.fromEntries(header.map((h, i) => {
+            let val = fields[i]
+            if (h === 'Profit' || h === 'Sales' || h === 'ProfitRatio') {
+              if (h === 'Profit' && val.startsWith('(')) {
+                val = '-' + val
+              }
+              val = val.replace(/[()$%,]/g, '')
+            }
+            if (!isNaN(val)) {
+              val = Number(val)
+            }
+            if (h.includes('Date')) {
+              val = val.split('.').map(date => date.trim()).slice(0, -1)
+            }
+            return [h, val]
+          }))
+        })
+        commit('SET_DATA', output)
+        router.push({ name: 'Dashboard'})
+      }
+    },
     csv2Json({ commit }, arrData) {
       const header = arrData[0].map(h => h.replace(' ', ''))
       const output = arrData.slice(1).map(line => {
